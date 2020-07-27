@@ -1,4 +1,3 @@
-  
 const express = require('express');
 const mongoose = require('mongoose');
 
@@ -9,65 +8,92 @@ const testMiddleware = require('../../middlewares/test');
 
 var tws = [];
 
-Router.get('/', testMiddleware, (req, res) => {
-    // res.status(200).send('GET Tws');
-    res.status(200).json(tws);
+Router.get('/', testMiddleware, async (req, res) => {
+	try {
+		tws = await Tw.find();
+		if (tws && tws.length > 0) {
+			res.status(200).json(tws);
+		} else {
+			res.status(404).json({ "message": "No Twit found." });
+		}
+	} catch (err) {
+		res.status(500).json({ error: err })
+	}
 })
 
-Router.get('/:twId', (req, res) => {
-    twId = req.params.twId;
+Router.get('/:twId', async (req, res) => {
+	twId = req.params.twId;
 
-    tw = tws.filter((tw) => {
-        return tw.id == twId;
-    });
+	try {
+		const tw = await Tw.findById(twId);
 
-    // res.status(200).send('GET Tw Id: ' + twId);
-    res.status(200).json(tw);
+		if (tw) {
+			res.status(200).json(tw);
+		} else {
+			res.status(404).json({ "message": "No Twit found." })
+		}
+	} catch (err) {
+		res.status(500).json({ error: err })
+	}
 })
 
-Router.post('/', (req, res) => {
-    console.log(req.body.message);
-    
-    if (req.body.message && req.body.message != "") {
-        const tw = new Tw({
-            _id: new mongoose.Types.ObjectId(),
-            message: req.body.message
-        })
+Router.post('/saveTw', (req, res) => {
+	console.log(req.body.message);
 
-        tw.save()
-            .then(tw => {
-							console.log("save->then")
-              res.status(200).send(tw);
-            })
-            .catch(err => {
-                res.status(500).json({error: err});    
-            })
-    } else {
-        res.status(500).json({error: "Please put some values"});    
-    }
+	if (req.body.message && req.body.message != "") {
+		const tw = new Tw({
+			_id: new mongoose.Types.ObjectId(),
+			message: req.body.message
+		})
+
+		tw.save()
+			.then(tw => {
+				res.status(200).send(tw);
+			})
+			.catch(err => {
+				res.status(500).json({ error: err });
+			})
+	} else {
+		res.status(500).json({ error: "Please put some values" });
+	}
 })
 
 Router.delete('/:twId', (req, res) => {
-    twId = req.params.twId;
+	twId = req.params.twId;
 
-    tws = tws.filter((tw) => {
-        return tw.id != twId;
-    })
-
-    res.status(200).json(tws);
+	Tw.remove({
+		_id: twId
+	}, (err) => {
+		if (err) {
+			res.status(500).json({ error: err })
+		} else {
+			res.status(200).json({ "message": "Twit has been deleted." });
+		}
+	})
 })
 
-Router.patch('/:twId', (req, res) => {
-    twId = req.params.twId;
-    message = req.body.message;
+Router.patch('/:twId', async (req, res) => {
+	twId = req.params.twId;
+	newMessage = req.body.message;
 
-    tws.filter((tw) => {
-        if (tw.id == twId) {
-            tw.message = message
-        }
-    });
-
-    res.status(200).json(tws);
+	try {
+		const tw = await Tw.findByIdAndUpdate(
+			twId,
+			{
+				message: newMessage
+			},
+			{
+				new: true
+			}
+		)
+		if (tw) {
+			res.status(200).json(tw);
+		} else {
+			res.status(404).json({ "message": "No Twit found." })
+		}
+	} catch (err) {
+		res.status(500).json({ error: err })
+	}
 })
 
 module.exports = Router;

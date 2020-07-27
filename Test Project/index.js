@@ -44,4 +44,4 @@ app.listen(process.env.PORT, function() {
     console.log('Server running on localhost:' + process.env.PORT);
 });
 
-connectDB.close();
+// connectDB.close();
