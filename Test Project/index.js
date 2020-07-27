@@ -13,6 +13,9 @@ const twsApiRouter = require('./routes/api/tws');
 const connectDB = require('./middlewares/db');
 connectDB.connect();
 
+const momentHandler = require('handlebars.moment');
+momentHandler.registerHelpers(exphbs)
+
 const app = express();
 
 app.use(morgan('dev'));

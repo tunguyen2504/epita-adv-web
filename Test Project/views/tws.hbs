@@ -5,3 +5,16 @@
     <li>{{{this.message}}}</li>
   {{/each}}
 </ul>
+
+<table>
+	<tr>
+		<th>Twits</th>
+		<th>Date</th>
+	</tr>
+	{{#each tws}}
+		<tr>
+			<td>{{{this.message}}}</td>
+			<td>{{{this.createdAt}}}</td>
+		</tr>
+	{{/each}}
+</table>
