@@ -7,6 +7,7 @@ Router.get('/', (req, res) => {
     var error = false;
 
     Tw.find()
+        .sort({createdAt:-1})
         .lean()
         .exec()
         .then(tws => {

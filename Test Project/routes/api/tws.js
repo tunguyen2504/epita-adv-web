@@ -48,7 +48,7 @@ Router.post('/saveTw', (req, res) => {
 
 		tw.save()
 			.then(tw => {
-				res.status(200).send(tw);
+				res.redirect('/tws');
 			})
 			.catch(err => {
 				res.status(500).json({ error: err });
